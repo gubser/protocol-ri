@@ -1687,12 +1687,12 @@ class Registry(object):
 
         return json.dumps(d, indent=4)
 
-    def uri():
+    def uri(self):
         """
         Returns the URI by which this registry is known.
 
          """
-        return _uri
+        return self._uri
 
 _base_registry = None
 _registries = {}
@@ -1958,7 +1958,7 @@ class Parameter(Element):
         elif isinstance(constraint, _Constraint):
             self._constraint = constraint
         else:
-            self._constraint = SetConstraint(vs=set([constraint]), prim=self._prim)
+            self._constraint = _SetConstraint(vs=set([constraint]), prim=self._prim)
 
         self.set_value(val)
 
@@ -2544,8 +2544,8 @@ class Capability(Statement):
 
     """
 
-    def __init__(self, dictval=None, verb=VERB_MEASURE, label=None, token=None, when=None):
-        super().__init__(dictval=dictval, verb=verb, label=label, token=token, when=when)
+    def __init__(self, dictval=None, verb=VERB_MEASURE, label=None, token=None, when=None, reguri=None):
+        super().__init__(dictval=dictval, verb=verb, label=label, token=token, when=when, reguri=reguri)
 
     def _more_repr(self):
         return " p/m/r "+str(self.count_parameters())+"/"+\
@@ -2608,6 +2608,7 @@ class Specification(Statement):
             self._metadata = capability._metadata
             self._params = deepcopy(capability._params)
             self._resultcolumns = deepcopy(capability._resultcolumns)
+            self._reguri = capability._reguri
 
             # inherit from capability only when necessary
             if when is None:
@@ -2848,6 +2849,7 @@ class _StatementNotification(Statement):
         if dictval is None and statement is not None:
             self._verb = statement._verb
             self._when = statement._when
+            self._reguri = statement._reguri
             self._metadata = statement._metadata
             self._params = deepcopy(statement._params)
             self._resultcolumns = deepcopy(statement._resultcolumns)
